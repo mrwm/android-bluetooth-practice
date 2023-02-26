@@ -20,16 +20,14 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityCompat
 
 
-
 fun Context.toast(message: CharSequence) =
     Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 
 class MainActivity : AppCompatActivity() {
 
-    //lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
-    private var m_bluetoothAdapter: BluetoothAdapter? = null
-    private lateinit var m_pairedDevices: Set<BluetoothDevice>
-    private val REQUEST_ENABLE_BLUETOOTH = 1
+    var m_bluetoothAdapter: BluetoothAdapter? = null
+    lateinit var m_pairedDevices: Set<BluetoothDevice>
+    val REQUEST_ENABLE_BLUETOOTH = 1
 
     companion object {
         val EXTRA_ADDRESS: String = "Device_address"
@@ -41,27 +39,11 @@ class MainActivity : AppCompatActivity() {
 
         m_bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         if (m_bluetoothAdapter == null) {
-            toast("This device doesn't support bluetooth")
+            toast("this device doesn't support bluetooth")
             return
         }
         if (!m_bluetoothAdapter!!.isEnabled) {
             val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.BLUETOOTH_CONNECT
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                toast("Something happened. Maybe bluetooth got denied?")
-                return
-            }
-            //activityResultLauncher.launch(enableBluetoothIntent) //ref line21 activityResultLauncher for what is this
             startActivityForResult(enableBluetoothIntent, REQUEST_ENABLE_BLUETOOTH)
         }
 
@@ -73,9 +55,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun pairedDeviceList() {
         if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.BLUETOOTH_CONNECT
-            ) != PackageManager.PERMISSION_GRANTED
+                    this,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                ) != PackageManager.PERMISSION_GRANTED
         ) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -92,15 +74,14 @@ class MainActivity : AppCompatActivity() {
         if (!m_pairedDevices.isEmpty()) {
             for (device: BluetoothDevice in m_pairedDevices) {
                 list.add(device)
-                Log.i("device", ""+device)
+                Log.i("device", "" + device)
             }
         }
         else {
-            toast("No paired bluetooth devices found")
+            toast("no paired bluetooth devices found")
         }
-
-        val lstView = findViewById<ListView>(R.id.select_device_list)
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, list)
+        val lstView = findViewById<ListView>(R.id.select_device_list)
         lstView.adapter = adapter
         lstView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             val device: BluetoothDevice = list[position]
@@ -109,11 +90,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, ControlActivity::class.java)
             intent.putExtra(EXTRA_ADDRESS, address)
             startActivity(intent)
-
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?){
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_ENABLE_BLUETOOTH) {
             if (resultCode == Activity.RESULT_OK) {
